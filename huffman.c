@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#define FREQLEN 26
 #define ALEN 26 
 
 typedef struct node* Tree;
@@ -13,7 +12,7 @@ struct node {
     struct node* left;
     struct node* right;
 };
-int frequencies[26] = {
+int frequencies[ALEN] = {
     8,  
     2,  
     3,  
