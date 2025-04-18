@@ -126,6 +126,5 @@ int main(void) {
         printf("%s", table[i]);
         printf("\n");
     }
-
     return 0;
 }
