@@ -51,11 +51,12 @@ Tree newTree(Tree a, Tree b, char chr, int freq) {
 }
 
 Tree minimumNode(Tree forest[], int n, int*pos) {
-    int minima = 105;
-    Tree minNode = NULL;
+    int minima = 1000;
+    Tree minNode;
     for(int i=0; i<n; ++i) {
         if(forest[i] == NULL) continue;
         if(forest[i]->value < minima) { 
+            minima = forest[i]->value;
             minNode = forest[i];
             *pos = i;
         }
@@ -73,6 +74,7 @@ void printForest(Tree f[]) {
         if(f[i] == NULL) continue;
         printf("%d %c |", f[i]->value, f[i]->character);
     }
+    printf("\n");
 }
 
 Tree huffmanTree(int f[]) {
@@ -83,26 +85,47 @@ Tree huffmanTree(int f[]) {
     }
     
     //creating minma and finding
+    Tree left, right;
     int *pos = malloc(sizeof(int));
+    *pos = 0;
     for(int i=0; i<ALEN-1; ++i) {
-        Tree left = minimumNode(forest, ALEN, pos);
+        left = minimumNode(forest, ALEN, pos);
         forest[*pos] = NULL;
-            
-        Tree right = minimumNode(forest, ALEN, pos);
+        right = minimumNode(forest, ALEN, pos);
         forest[*pos] = NULL;
-        //compress the two nodes in one
+        //compress
         forest[*pos] = compress(left, right);
     }
     return forest[*pos];
 }
-/*
-void encode(Tree t, char string[], char table[]) {
-    if(t->left == NULL && t->right == NULL) 
-        strcpy(table[t->character-'a'], string);
+
+void encode(Tree t, char letter, int depth, char bits[], char table[][ALEN]) {
+    if(!t->left && !t->right && t->character == letter) {
+        bits[depth] = '\0';
+        strcpy(table[letter-'a'], bits);
+        return;
+    }
+    if(t->left != NULL)  {
+        bits[depth] = '0';
+        encode(t->left, letter, depth+1, bits, table);
+    }
+    if(t->right != NULL) {
+        bits[depth] = '1';
+        encode(t->right, letter, depth+1, bits, table);
+    }
 }
-*/
 
 int main(void) {
     Tree huffmanAlphabet = huffmanTree(frequencies);
+    char table[ALEN][ALEN];
+    char bits[ALEN];
+
+    for(int i=0; i<ALEN; i++) {
+        printf("%c: ", 'a'+i);
+        encode(huffmanAlphabet, 'a'+i, 0, bits, table);
+        printf("%s", table[i]);
+        printf("\n");
+    }
+
     return 0;
 }
