@@ -47,8 +47,10 @@ Tree newTree(Tree a, Tree b, char chr, int freq) {
     t->character = chr;
     t->left = a;
     t->right = b;
+    return t;
 }
 
+//finds minimum root node in a forest
 Tree minimumNode(Tree forest[], int n, int*pos) {
     int minima = 1000;
     Tree minNode;
@@ -68,6 +70,7 @@ Tree compress(Tree left, Tree right) {
     return parent;
 }
 
+//prints current forest status
 void printForest(Tree f[]) {
     for(int i=0; i<ALEN; ++i) {
         if(f[i] == NULL) continue;
@@ -76,6 +79,7 @@ void printForest(Tree f[]) {
     printf("\n");
 }
 
+//creates forest, which is then compressed in a single tree
 Tree huffmanTree(int f[]) {
     Tree forest[ALEN];
     //initialization of tree
@@ -98,33 +102,41 @@ Tree huffmanTree(int f[]) {
     return forest[*pos];
 }
 
-void encode(Tree t, char letter, int depth, char bits[], char table[][ALEN]) {
-    if(!t->left && !t->right && t->character == letter) {
+//the encoding algorithm searches for the leaf with same char
+void runEncoder(Tree t, int depth, char bits[], char table[][ALEN]) {
+    if(!t->left && !t->right) {
         bits[depth] = '\0';
-        strcpy(table[letter-'a'], bits);
+        strcpy(table[t->character-'a'], bits);
         return;
     }
     if(t->left != NULL)  {
         bits[depth] = '0';
-        encode(t->left, letter, depth+1, bits, table);
+        runEncoder(t->left, depth+1, bits, table);
     }
     if(t->right != NULL) {
         bits[depth] = '1';
-        encode(t->right, letter, depth+1, bits, table);
+        runEncoder(t->right, depth+1, bits, table);
     }
 }
 
-int main(void) {
-    Tree huffmanAlphabet = huffmanTree(frequencies);
-    char table[ALEN][ALEN];
+void encode(Tree t, char table[][ALEN]) {
     char bits[ALEN];
+    runEncoder(t, 0, bits, table);
+}
 
-    for(int i=0; i<ALEN; i++) {
-        printf("%c: ", 'a'+i);
-        encode(huffmanAlphabet, 'a'+i, 0, bits, table);
-        printf("%s", table[i]);
-        printf("\n");
-    }
+void printTable(char table[][ALEN]) {
+    for(int i=0; i<ALEN; ++i) 
+        printf("%c: %s\n", 'a'+i, table[i]);
+}
+ 
+    
 
+int main(void) {
+    char table[ALEN][ALEN];
+    Tree huffmanAlphabet = huffmanTree(frequencies);
+    //encoding function
+    encode(huffmanAlphabet, table);
+
+    printTable(table);
     return 0;
 }
