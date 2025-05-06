@@ -9,23 +9,27 @@
 
 
 void err() {
-    fprintf(stderr, "\nUsage:\nffman.exe -e <input file> <output file>\n"
+    fprintf(stderr, "Correct usage:\nffman.exe -e <input file> <output file>\n"
            "ffman.exe -d <input file> <output file>\n");
+    fprintf(stderr, "Did you mean something? do ffman.exe -h for help");
 }
 
 
 int main(int argc, char* argv[]) {
+    if(argc != 2) {err(); return 1;}
     int opt;
     char* inputFileName = NULL;
     char* outputFileName = NULL;
     char line[BLEN];
     char table[ALEN][ALEN];
-    uint32_t frequencies[ALEN] = {0};
+    static uint32_t frequencies[ALEN] = {0};
     Tree htree;
     while((opt = getopt(argc, argv, "cdvh")) != -1) {
         FILE* inputFile;
         FILE* outputFile;
         switch(opt) {
+
+
             case 'c':
                 inputFileName = "input.txt";
                 outputFileName = "compressed.bin";
@@ -43,17 +47,20 @@ int main(int argc, char* argv[]) {
                 htree = huffmanTree(frequencies, table);
                 rewind(inputFile);
                 //write magic number
+
                 fwrite("0xFFMAN", 1, 7, outputFile);
                 for(int i=0; i<ALEN; ++i) {
                     uint32_t val = frequencies[i];
                     fwrite(&val, sizeof(uint32_t), 1, outputFile);
                 }
                 fprintf(outputFile, "\n"); 
-                while(fgets(line, BLEN, inputFile)) {
+                while(fgets(line, BLEN, inputFile))
                     fprintf(outputFile, encode(line, table));
-                }
+
                 printf("File %s compressed properly", inputFileName);
                 break;
+
+
             case 'd':
                 //check magic  
                 inputFileName = "compressed.bin";
@@ -79,26 +86,38 @@ int main(int argc, char* argv[]) {
                 Tree htree = huffmanTree(frequencies, table);
                 while(fgets(line, BLEN, inputFile)) 
                     printf("%s", decode(htree, line));
-                printf("File %s decompressed properly", inputFileName);
+                printf("\nFile %s decompressed properly", inputFileName);
                 break;
+
+
             case 'v':
                 inputFileName = "input.txt"; 
                 if((inputFile = fopen(inputFileName, "r")) == NULL) {
                    err(); 
                    return 1;
                 }
+                inputFileName = "input.txt";
+                printf("Information for %s:\n", inputFileName);
+                
+                printf("Metadata information:");
+                printf("\n |- Fixed magic number: 7 bytes");
+                printf("\n |- Fixed length of frequency array: 128 bytes");
+                
                 while(fgets(line, BLEN, inputFile)) 
                     adaptFreq(line, frequencies);
-                printf("Shannon's entropy of input.txt: %f", entropy(frequencies));
+                printf("\n\nFile data information:");
+                printf("\n |- Theoretical minimum average bits (Entropy):"
+                        " %f", entropy(frequencies));
+                
                 break;
+
+
             case 'h':
-                printf("0xFFman github page: ");
-                printf("\nhttps://github.com/demr64/0xFFman/blob/main/README.md");
+                printf("\n'Information: the negative reciprocal value of probability.'");
+                printf("\n-Claude E. Shannon.");
                 break;
             default:
-                err();
                 return 1;
-            
         }
     }
     return 0;

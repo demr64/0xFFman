@@ -53,20 +53,27 @@ void printForest(Tree f[]) {
 
 //creates forest, which is then compressed in a single tree
 Tree huffmanTree(int f[], char table[][ALEN]) {
-    Tree forest[ALEN];
-    //initialization of tree
+    //s is the size of the initial forest
+    //we adapt it to the number of the current symbols
+    int s=0;
     for(int i=0; i<ALEN; i++) 
-        forest[i] = newTree(NULL, NULL, (char)i, f[i]);
+        if(f[i] > 0)
+            s++;
+    //initialization of tree
+    Tree forest[s];
+    for(int i=0, y=0; i<ALEN; i++) 
+        if(f[i] > 0)
+            forest[y++] = newTree(NULL, NULL, (char)i, f[i]);
     
     //creating minma and finding
     Tree htree;
     Tree left, right;
     int *pos = malloc(sizeof(int));
     *pos = 0;
-    for(int i=0; i<ALEN-1; ++i) {
-        left = minimumNode(forest, ALEN, pos);
+    for(int i=0; i<s-1; ++i) {
+        left = minimumNode(forest, s, pos);
         forest[*pos] = NULL;
-        right = minimumNode(forest, ALEN, pos);
+        right = minimumNode(forest, s, pos);
         forest[*pos] = NULL;
         //compress
         forest[*pos] = compress(left, right);
@@ -98,8 +105,9 @@ void runEncoder(Tree t, int depth, char bits[], char table[][ALEN]) {
 char* encode(char* text, char table[][ALEN]) {
     static char encodedString[ALEN*ALEN];
     strcpy(encodedString, "");
-    for(int i=0; i<strlen(text); i++) 
+    for(int i=0; i<strlen(text); i++) {
        strcat(encodedString, table[(int)text[i]]); 
+    }
     return encodedString;
 }
 
