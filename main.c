@@ -54,23 +54,33 @@ int main(int argc, char* argv[]) {
                     fwrite(&val, sizeof(uint32_t), 1, outputFile);
                 }
                 fprintf(outputFile, "\n"); 
-                while(fgets(line, BLEN, inputFile))
-                    fprintf(outputFile, encode(line, table));
-
+                uint8_t buffer = 0; 
+                uint8_t byte = 0;
+                //writing bytes compressed
+                while(fgets(line, BLEN, inputFile)) {
+                    char* temp = encode(line, table);
+                    for(int i=0; i<strlen(temp); ++i) {
+                        if((i+1)%8 == 0) {
+                            fwrite(&byte, sizeof(uint8_t), 1, outputFile);
+                            byte = 0;
+                        }
+                        if(temp[i] == '1') byte |= 1;
+                        byte <<= 1;
+                    }
+                }
                 printf("File %s compressed properly", inputFileName);
                 break;
 
 
             case 'd':
-                //check magic  
                 inputFileName = "compressed.bin";
                 if((inputFile = fopen(inputFileName, "rb")) == NULL) {
                     err();
                     return 1;
                 }
-                //magic number file format
-                uint8_t magic[] = {'0', 'x', 'F','F','M','A','N'};
 
+                uint8_t magic[] = {'0', 'x', 'F','F','M','A','N'};
+                //check magic
                 for(int i=0;i<7; ++i) {
                     uint8_t val = fgetc(inputFile);
                     if(magic[i] != val) {
@@ -84,8 +94,6 @@ int main(int argc, char* argv[]) {
                     frequencies[i] = val;
                 }
                 Tree htree = huffmanTree(frequencies, table);
-                while(fgets(line, BLEN, inputFile)) 
-                    printf("%s", decode(htree, line));
                 printf("\nFile %s decompressed properly", inputFileName);
                 break;
 
@@ -108,7 +116,6 @@ int main(int argc, char* argv[]) {
                 printf("\n\nFile data information:");
                 printf("\n |- Theoretical minimum average bits (Entropy):"
                         " %f", entropy(frequencies));
-                
                 break;
 
 

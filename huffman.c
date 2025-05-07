@@ -24,7 +24,7 @@ Tree newTree(Tree a, Tree b, char chr, int freq) {
 
 //finds minimum root node in a forest
 Tree minimumNode(Tree forest[], int n, int*pos) {
-    int minima = 1000;
+    int minima = 1e9;
     Tree minNode;
     for(int i=0; i<n; ++i) {
         if(forest[i] == NULL) continue;
