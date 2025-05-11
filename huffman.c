@@ -111,9 +111,9 @@ char* encode(char* text, char table[][ALEN]) {
     return encodedString;
 }
 
-char runDecoder(Tree t, char *text, int* i) {
-    if(!t->left && !t->right) 
-        return t->character;
+int runDecoder(Tree t, char *text, int* i) {
+    if((!t->left && !t->right)) 
+        return (unsigned char)t->character;
     if(text[*i] == '0') {
         (*i)++;
         return runDecoder(t->left, text, i);
@@ -122,19 +122,35 @@ char runDecoder(Tree t, char *text, int* i) {
         (*i)++;
         return runDecoder(t->right, text, i);
     }
+    return -1;
 }
 
-char* decode(Tree t, char* text) {
+
+char* decode(Tree t, char* text, int* changedBits, int pad) {
+    static char decodedString[ALEN*ALEN];
+    for(int i=0; i<ALEN*ALEN; ++i)
+        decodedString[i] = 0;
     int* i= malloc(sizeof(int));
     *i = 0;
+    int prev;
     int j=0;
-    static char decodedString[ALEN*ALEN];
-    while(text[*i] == '1' || text[*i] == '0') {
-        decodedString[j] = runDecoder(t, text,  i);
+    char temp;
+    while(text[*i] == '1' || text[*i] == '0' && (8 > pad+*i)) {
+        prev = *i;
+        temp = runDecoder(t, text, i);
+        if(temp != -1) 
+            decodedString[j] = temp;
+        else {
+            *changedBits = prev-1;
+            return decodedString;
+        }
         j++;
     }
+    *changedBits = *i-1;
+    free(i);
     return decodedString;
 }
+
 void adaptFreq(char* line, int frequencies[]) {
     char *ptr = line;
     while(*ptr != '\n') {

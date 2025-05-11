@@ -3,7 +3,8 @@ This project is about a file compressor/decompressor using the Huffman coding sc
 
 ### what is huffman coding and project information
 Huffman coding is an algortihm that allows to compress data based on an alphabet's letter frequency, most used letters will have assigned an encoding value in bits that is small. The algorithm works by constructing a forest of binary trees, from which we gradually build the final tree, which will allow us to encode/decode files.
-The program uses a magic number to check wether an input file was properly compressed by an encoder in the past.
+The program uses a magic number to check wether an input file was properly compressed by
+an encoder in the past. This project only supports ASCII character texts.
 
 ### manual
 This project uses a custom Makefile, use the command
