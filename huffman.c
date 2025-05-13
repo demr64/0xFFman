@@ -132,20 +132,22 @@ char* decode(Tree t, char* text, int* changedBits, int pad) {
         decodedString[i] = 0;
     int* i= malloc(sizeof(int));
     *i = 0;
-    int prev;
+    int prev=1;
     int j=0;
     char temp;
-    while(text[*i] == '1' || text[*i] == '0' && (8 > pad+*i)) {
+    while((text[*i] == '1' || text[*i] == '0')&& (8 > pad+*i)) {
         prev = *i;
         temp = runDecoder(t, text, i);
         if(temp != -1) 
             decodedString[j] = temp;
         else {
+            if(prev == 0) prev=1;
             *changedBits = prev-1;
             return decodedString;
         }
         j++;
     }
+    if(*i == 0) *i =1;
     *changedBits = *i-1;
     free(i);
     return decodedString;
@@ -159,6 +161,7 @@ void adaptFreq(char* line, int frequencies[]) {
     }
     frequencies[(int)'\n']++;
 }
+
 double entropy(int frequencies[]) {
     double y=0.0;
     int total = 0;
@@ -169,6 +172,7 @@ double entropy(int frequencies[]) {
             y += -((double)frequencies[i]/total)*log2(((double)frequencies[i])/total);
     return y;
 } 
+
 void printTable(char table[][ALEN]) {
     for(int i=0; i<ALEN; ++i) 
         printf("%c: %s\n", i, table[i]);
