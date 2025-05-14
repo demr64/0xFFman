@@ -14,21 +14,25 @@ void err() {
     fprintf(stderr, "Did you mean something? do ffman.exe -h for help");
 }
 
+int maxCode(char table[][ALEN]) {
+    int max = 0;
+    for(int i=0; i<ALEN; ++i) 
+        if(strlen(table[i]) > max) 
+            max = strlen(table[i]);
+    return max;
+}
+
 int main(int argc, char* argv[]) {
     if(argc != 2) {err(); return 1;}
-    int opt;
+    int opt, idx=0, num=0;
     char* inputFileName = NULL;
     char* outputFileName = NULL;
-    char line[BLEN];
-    char table[ALEN][ALEN];
+    char ch, table[ALEN][ALEN] = {0};
     uint32_t frequencies[ALEN] = {0};
-    FILE* inputFile;
-    FILE* outputFile;
+    FILE* inputFile, *outputFile;
     uint8_t pad;
-    int idx=0;
-    int num;
     Tree htree;
-    while((opt = getopt(argc, argv, "cdvh")) != -1) {
+    while((opt = getopt(argc, argv, "cdv")) != -1) {
         switch(opt) {
             case 'c':
                 inputFileName = "input.txt";
@@ -40,8 +44,8 @@ int main(int argc, char* argv[]) {
                     err();
                     return 1;
                 }
-                while(fgets(line, BLEN, inputFile)) 
-                   adaptFreq(line, frequencies); 
+                while((ch = fgetc(inputFile)) != EOF)
+                    adaptFreq(ch, frequencies);
 
                 htree = huffmanTree(frequencies, table);
                 rewind(inputFile);
@@ -64,17 +68,19 @@ int main(int argc, char* argv[]) {
                     err();
                     return 1;
                 }
+
                 fread(&pad, sizeof(uint8_t), 1, inputFile);
+
                 if(!checkMagicFF(inputFile))
                     fprintf(stderr, "\nERROR: file magic number doesn't match");
-
                 for(int i=0; i<ALEN; ++i) {
                     uint32_t val;
                     fread(&val, sizeof(uint32_t), 1, inputFile);
                     frequencies[i] = val;
                 }
+
                 Tree htree = huffmanTree(frequencies, table);
-                ffdecode(inputFile, outputFile, htree, pad);
+                ffdecode(inputFile, outputFile, htree, pad, maxCode(table));
                 printf("\nFile %s decompressed properly", inputFileName);
                 break;
 
@@ -86,32 +92,24 @@ int main(int argc, char* argv[]) {
                    return 1;
                 }
                 inputFileName = "input.txt";
-                printf("Information for %s\n", inputFileName);
-                printf("Metadata information:");
+                printf("\nInformation for %s", inputFileName);
+                printf("\nMetadata information:");
+                printf("\n |- Metadata block size: 136 bytes");
                 printf("\n |- Fixed pad number: 1 byte");
                 printf("\n |- Fixed magic number: 7 bytes");
                 printf("\n |- Fixed length of frequency array: 128 bytes");
-
-                while(fgets(line, BLEN, inputFile))
-                    adaptFreq(line, frequencies);
-            
+                while((ch = fgetc(inputFile)) != EOF)
+                    adaptFreq(ch, frequencies);
                 for(int i=0; i<ALEN; i++)
                     if(frequencies[i] > 0)
                         num++;
+                htree = huffmanTree(frequencies, table);
                 printf("\n\nFile data information:");
                 printf("\n |- Theoretical minimum average bits (entropy):"
                         " %f", entropy(frequencies));
                 printf("\n |- Number of distinct ASCII characters: %d", num);
-                htree = huffmanTree(frequencies, table);
-                printf("\nCodes:\n");
-                for(int i=0; i<ALEN; ++i)
-                    if(frequencies[i] > 0)
-                        printf("|- %c: %s\n", (char)i,encode((char*)&i, table));
-                break;
-
-
-            case 'h':
-                printf("\n'Information: the negative reciprocal value of probability.'");
+                printf("\n |- Maximum code length: %d", maxCode(table));
+                printf("\n\n'Information: the negative reciprocal value of probability.'");
                 printf("\n-Claude E. Shannon.");
                 break;
             default:

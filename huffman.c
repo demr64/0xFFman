@@ -103,7 +103,7 @@ void runEncoder(Tree t, int depth, char bits[], char table[][ALEN]) {
 }
 //main encoder function
 char* encode(char* text, char table[][ALEN]) {
-    static char encodedString[ALEN*ALEN];
+    static char encodedString[ALEN];
     strcpy(encodedString, "");
     for(int i=0; i<strlen(text); i++) {
        strcat(encodedString, table[(int)text[i]]); 
@@ -153,13 +153,8 @@ char* decode(Tree t, char* text, int* changedBits, int pad) {
     return decodedString;
 }
 
-void adaptFreq(char* line, int frequencies[]) {
-    char *ptr = line;
-    while(*ptr != '\n') {
-        frequencies[(int)*ptr]++;
-        ptr++;
-    }
-    frequencies[(int)'\n']++;
+void adaptFreq(char line, int frequencies[]) {
+    frequencies[(int)line]++;
 }
 
 double entropy(int frequencies[]) {

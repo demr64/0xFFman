@@ -30,7 +30,3 @@ there is also a command to visualize some statistics about the input.txt and com
 ```
 ffman.exe -v
 ```
-to get help in the CLI type the command
-```
-ffman.exe -h
-```

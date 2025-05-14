@@ -12,4 +12,4 @@ char* decode(Tree t, char* text, int*changedBits, int pad);
 int runDecoder(Tree t, char *text, int* i);
 double entropy(int frequencies[]);
 void printTable(char table[][ALEN]);
-void adaptFreq(char* line, int frequencies[]);
+void adaptFreq(char, int frequencies[]);
