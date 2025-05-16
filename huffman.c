@@ -168,8 +168,10 @@ double entropy(int frequencies[]) {
     return y;
 } 
 
-void printTable(char table[][ALEN]) {
+int maxCode(char table[][ALEN]) {
+    int max = 0;
     for(int i=0; i<ALEN; ++i) 
-        printf("%c: %s\n", i, table[i]);
+        if(strlen(table[i]) > max) 
+            max = strlen(table[i]);
+    return max;
 }
- 

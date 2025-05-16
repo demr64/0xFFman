@@ -13,3 +13,4 @@ int runDecoder(Tree t, char *text, int* i);
 double entropy(int frequencies[]);
 void printTable(char table[][ALEN]);
 void adaptFreq(char, int frequencies[]);
+int maxCode(char table[][ALEN]);

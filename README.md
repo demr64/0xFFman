@@ -17,16 +17,18 @@ This project uses a custom Makefile, use the command
 make
 ```
 in a terminal opened inside the folder, so that everything gets properly linked.
+Your input files shall use a .txt format and outputfiles in .bin, or equivalent format.
+First create your input file, your output files will be created if not existent.
 Here's the list of all commands:
 ```
-ffman.exe -c
+ffman.exe -c <input file> <output file>
 ```
 this command will compress the contents of "input.txt"
 ```
-ffman.exe -d
+ffman.exe -d <input file> <output file>
 ```
 this one will allow to decompress the contents of "compressed.bin"
 there is also a command to visualize some statistics about the input.txt and compressed.bin files
 ```
-ffman.exe -v
+ffman.exe -v <input file> 
 ```
