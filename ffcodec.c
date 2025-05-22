@@ -88,9 +88,9 @@ int ffdecode(FILE* inputFile, FILE* outputFile, Tree htree, uint8_t pad, int max
             //if we are at a multiple of 8 decode?
             if(idx == maxCode) {
                 if(flag) 
-                    printf("%s", decode(htree, buffer, &decoded, pad));
+                    fprintf(outputFile, "%s", decode(htree, buffer, &decoded, pad));
                 else
-                    printf("%s", decode(htree, buffer, &decoded, 0));
+                    fprintf(outputFile, "%s", decode(htree, buffer, &decoded, 0));
                 if(decoded < maxCode && decoded >=0) {
                     //must insert remaining chars in buffer 
                     for(int j=0; j<maxCode-1-decoded; ++j)

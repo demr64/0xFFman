@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
         err();
         return 1;
     }
-    int opt, idx=0, num=0;
+    int opt=0, idx=0, num=0;
     char* inputFileName = NULL;
     char* outputFileName = NULL;
     char ch, table[ALEN][ALEN] = {0};
@@ -53,6 +53,8 @@ int main(int argc, char* argv[]) {
             writeMetadata(outputFile, frequencies);
             ffencode(inputFile, outputFile, table);
             printf("File %s compressed properly", inputFileName);
+            fclose(inputFile);
+            fclose(outputFile);
             break;
 
         case 2:
@@ -80,6 +82,9 @@ int main(int argc, char* argv[]) {
             Tree htree = huffmanTree(frequencies, table);
             ffdecode(inputFile, outputFile, htree, pad, maxCode(table));
             printf("\nFile %s decompressed properly", inputFileName);
+            fclose(inputFile);
+            fclose(outputFile);
+
             break;
 
         case 3:
@@ -107,6 +112,7 @@ int main(int argc, char* argv[]) {
             printf("\n |- Compression ratio:"); 
             printf("\n\n'Information: the negative reciprocal value of probability.'");
             printf("\n-Claude E. Shannon.");
+            fclose(inputFile);
             break;
         default:
             err();
